@@ -36,8 +36,12 @@
 #ifndef _H_MMGR
 #define _H_MMGR
 
-#include <cstddef>
-#include <cstdint>
+#include <stddef.h>
+#include <stdint.h>
+
+#if !defined(__cplusplus)
+    #include <stdbool.h>
+#endif
 
 // ---------------------------------------------------------------------------------------------------------------------------------
 // For systems that don't have the __FUNCTION__ variable, we can just define it here
@@ -48,6 +52,10 @@
 // ---------------------------------------------------------------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------------------------------------------------------------
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 typedef struct tag_au
 {
@@ -109,8 +117,33 @@ void        m_setOwner(const char *file, const unsigned int line, const char *fu
 // Allocation breakpoints
 // ---------------------------------------------------------------------------------------------------------------------------------
 
+void		m_breakOnAllocation(unsigned int count);
+void        m_breakOnRealloc(void *reportedAddress, bool set);
+void        m_breakOnDealloc(void *reportedAddress, bool set);
+
+void        m_alwaysValidateAll(bool set);  // Force a validation of all allocation units each time we enter this software
+void        m_alwaysLogAll(bool set);       // Force a log of every allocation & deallocation into memory.log
+void        m_alwaysWipeAll(bool set);      // Force this software to always wipe memory with a pattern when it is being allocated/deallocated
+void        m_randomeWipe(bool set);        // Force this software to use a random pattern when wiping memory -- good for stress testing
+
+#if defined(__cplusplus)
+}
+
 bool        &m_breakOnRealloc(void *reportedAddress);
 bool        &m_breakOnDealloc(void *reportedAddress);
+
+// ---------------------------------------------------------------------------------------------------------------------------------
+// -DOC- Flags & options -- Call these routines to enable/disable the following options
+// ---------------------------------------------------------------------------------------------------------------------------------
+
+bool        &m_alwaysValidateAll(); // Force a validation of all allocation units each time we enter this software
+bool        &m_alwaysLogAll();      // Force a log of every allocation & deallocation into memory.log
+bool        &m_alwaysWipeAll();     // Force this software to always wipe memory with a pattern when it is being allocated/deallocated
+bool        &m_randomeWipe();       // Force this software to use a random pattern when wiping memory -- good for stress testing
+
+extern "C" {
+
+#endif
 
 // ---------------------------------------------------------------------------------------------------------------------------------
 // The meat of the memory tracking software
@@ -142,20 +175,31 @@ unsigned int    m_calcAllUnused();
 // Logging and reporting
 // ---------------------------------------------------------------------------------------------------------------------------------
 
+#if !defined(__cplusplus)
+void        m_dumpAllocUnit(const sAllocUnit *allocUnit, const char *prefix);
+void        m_dumpMemoryReport(const char *filename, const bool overwrite);
+#else
 void        m_dumpAllocUnit(const sAllocUnit *allocUnit, const char *prefix = "");
 void        m_dumpMemoryReport(const char *filename = "memreport.log", const bool overwrite = true);
+#endif
 sMStats     m_getMemoryStatistics();
+
+#if defined(__cplusplus)
+} // end extern "C"
+#endif
 
 // ---------------------------------------------------------------------------------------------------------------------------------
 // Variations of global operators new & delete
 // ---------------------------------------------------------------------------------------------------------------------------------
 
+#if defined(__cplusplus)
 void    *operator new(size_t reportedSize);
 void    *operator new[](size_t reportedSize);
 void    *operator new(size_t reportedSize, const char *sourceFile, int sourceLine);
 void    *operator new[](size_t reportedSize, const char *sourceFile, int sourceLine);
 void    operator delete(void *reportedAddress);
 void    operator delete[](void *reportedAddress);
+#endif
 
 #endif // _H_MMGR
 
@@ -164,6 +208,7 @@ void    operator delete[](void *reportedAddress);
 // ---------------------------------------------------------------------------------------------------------------------------------
 
 #include "nommgr.h"
+
 #define new             (m_setOwner   (__FILE__, __LINE__, __FUNCTION__), false) ? nullptr : new
 #define delete          (m_setOwner   (__FILE__, __LINE__, __FUNCTION__), false) ? m_setOwner("", 0, "") : delete
 #define malloc(sz)      m_allocator   (__FILE__, __LINE__, __FUNCTION__, m_alloc_malloc, sz)

@@ -16,9 +16,14 @@ add_library(mmgr
 add_executable(test
     test/test.cpp
 )
-
 target_link_libraries(test mmgr)
 target_include_directories(test PRIVATE src)
+
+add_executable(testC
+    test/testC.c
+)
+target_link_libraries(testC mmgr)
+target_include_directories(testC PRIVATE src)
 
 if(MSVC)
     add_compile_definitions(_CRT_SECURE_NO_WARNINGS)

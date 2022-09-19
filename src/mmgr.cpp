@@ -624,6 +624,11 @@ static  MemStaticTimeTracker    mstt;
 // -DOC- Flags & options -- Call these routines to enable/disable the following options
 // ---------------------------------------------------------------------------------------------------------------------------------
 
+void    m_alwaysValidateAll(bool set) 
+{
+    m_alwaysValidateAll() = set;
+}
+
 bool    &m_alwaysValidateAll()
 {
     // Force a validation of all allocation units each time we enter this software
@@ -631,6 +636,11 @@ bool    &m_alwaysValidateAll()
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------
+
+void    m_alwaysLogAll(bool set)
+{
+    m_alwaysLogAll() = set;
+}
 
 bool    &m_alwaysLogAll()
 {
@@ -640,13 +650,23 @@ bool    &m_alwaysLogAll()
 
 // ---------------------------------------------------------------------------------------------------------------------------------
 
+void    m_alwaysWipeAll(bool set)
+{
+    m_alwaysWipeAll() = set;
+}
+
 bool    &m_alwaysWipeAll()
 {
-    // Force this software to always wipe memory with a pattern when it is being allocated/dallocated
+    // Force this software to always wipe memory with a pattern when it is being allocated/deallocated
     return alwaysWipeAll;
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------
+
+void    m_randomeWipe(bool set)
+{
+    m_randomeWipe() = set;
+}
 
 bool    &m_randomeWipe()
 {
@@ -658,6 +678,10 @@ bool    &m_randomeWipe()
 // -DOC- Simply call this routine with the address of an allocated block of RAM, to cause it to force a breakpoint when it is
 // reallocated.
 // ---------------------------------------------------------------------------------------------------------------------------------
+void    m_breakOnRealloc(void *reportedAddress, bool set)
+{
+    m_breakOnRealloc(reportedAddress) = set;
+}
 
 bool    &m_breakOnRealloc(void *reportedAddress)
 {
@@ -671,9 +695,10 @@ bool    &m_breakOnRealloc(void *reportedAddress)
 
     // If you hit this assert, you tried to set a breakpoint on reallocation for an address that wasn't allocated in a way that
     // is compatible with reallocation.
-    m_assert(au->allocationType == m_alloc_malloc ||
-         au->allocationType == m_alloc_calloc ||
-         au->allocationType == m_alloc_realloc);
+    m_assert(
+        au->allocationType == m_alloc_malloc ||
+        au->allocationType == m_alloc_calloc ||
+        au->allocationType == m_alloc_realloc);
 
     return au->breakOnRealloc;
 }
@@ -682,6 +707,11 @@ bool    &m_breakOnRealloc(void *reportedAddress)
 // -DOC- Simply call this routine with the address of an allocated block of RAM, to cause it to force a breakpoint when it is
 // deallocated.
 // ---------------------------------------------------------------------------------------------------------------------------------
+
+void    m_breakOnDealloc(void *reportedAddress, bool set)
+{
+    m_breakOnDealloc(reportedAddress) = set;
+}
 
 bool    &m_breakOnDealloc(void *reportedAddress)
 {
