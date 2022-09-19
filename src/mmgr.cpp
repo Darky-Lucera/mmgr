@@ -345,7 +345,7 @@ static  const char  *ownerString(const char *sourceFile, const unsigned int sour
 {
     static  char    str[90];
     memset(str, 0, sizeof(str));
-    sprintf(str, "%s(%05d)::%s", sourceFileStripper(sourceFile), sourceLine, sourceFunc);
+    sprintf(str, "%s(%5d)::%s", sourceFileStripper(sourceFile), sourceLine, sourceFunc);
     return str;
 }
 
@@ -1215,6 +1215,25 @@ void    *m_allocator(const char *sourceFile, const unsigned int sourceLine, cons
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------
+// strdup
+// ---------------------------------------------------------------------------------------------------------------------------------
+
+char *
+m_allocatorCpy(const char *sourceFile, const unsigned int sourceLine, const char *sourceFunc, const unsigned int allocationType, const char *_str)
+{
+    char *memory;
+    size_t	size;
+
+    assert(_str != nullptr);
+    size = strlen(_str);
+
+    memory = (char *)m_allocator(sourceFile, sourceLine, sourceFunc, allocationType, size + 1);
+    memcpy(memory, _str, size + 1);
+
+    return memory;
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------
 // Reallocate memory and track it
 // ---------------------------------------------------------------------------------------------------------------------------------
 
@@ -1695,14 +1714,14 @@ void    m_dumpMemoryReport(const char *filename, const bool overwrite)
     m_assert(fp);
     if (!fp) return;
 
-        // Header
+    // Header
 
-        static  char    timeString[25];
-        memset(timeString, 0, sizeof(timeString));
-        time_t  t = time(nullptr);
-        struct  tm *tme = localtime(&t);
+    static  char    timeString[25];
+    memset(timeString, 0, sizeof(timeString));
+    time_t  t = time(nullptr);
+    struct  tm *tme = localtime(&t);
     fprintf(fp, " ---------------------------------------------------------------------------------------------------------------------------------- \r\n");
-        fprintf(fp, "|                                             Memory report for: %02d/%02d/%04d %02d:%02d:%02d                                               |\r\n", tme->tm_mon + 1, tme->tm_mday, tme->tm_year + 1900, tme->tm_hour, tme->tm_min, tme->tm_sec);
+    fprintf(fp, "|                                             Memory report for: %02d/%02d/%04d %02d:%02d:%02d                                               |\r\n", tme->tm_mon + 1, tme->tm_mday, tme->tm_year + 1900, tme->tm_hour, tme->tm_min, tme->tm_sec);
     fprintf(fp, " ---------------------------------------------------------------------------------------------------------------------------------- \r\n");
     fprintf(fp, "\r\n");
     fprintf(fp, "\r\n");

@@ -1,3 +1,4 @@
+#include <cstring>
 #include <mmgr.h>
 
 //--------------------------------------
@@ -8,6 +9,7 @@ main() {
     auto leak1 = new int;
     auto leak2 = new int[5];
     auto leak3 = (int *) malloc(sizeof(int));
+    auto str = _strdup("Hola");
 
     *leak1   = 1;
     leak2[1] = 1;

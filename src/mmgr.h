@@ -114,6 +114,9 @@ void        *m_allocator(const char *sourceFile, const unsigned int sourceLine, 
 void        *m_reallocator(const char *sourceFile, const unsigned int sourceLine, const char *sourceFunc, const unsigned int reallocationType, const size_t reportedSize, void *reportedAddress);
 void        m_deallocator(const char *sourceFile, const unsigned int sourceLine, const char *sourceFunc, const unsigned int deallocationType, const void *reportedAddress);
 
+// strdup
+char        *m_allocatorCpy(const char *sourceFile, const unsigned int sourceLine, const char *sourceFunc, const unsigned int allocationType, const char *_str);
+
 // ---------------------------------------------------------------------------------------------------------------------------------
 // Utilitarian functions
 // ---------------------------------------------------------------------------------------------------------------------------------
@@ -155,12 +158,14 @@ void    operator delete[](void *reportedAddress);
 // ---------------------------------------------------------------------------------------------------------------------------------
 
 #include "nommgr.h"
-#define new         (m_setOwner  (__FILE__,__LINE__,__FUNCTION__), false) ? nullptr : new
-#define delete      (m_setOwner  (__FILE__,__LINE__,__FUNCTION__), false) ? m_setOwner("",0,"") : delete
-#define malloc(sz)  m_allocator  (__FILE__,__LINE__,__FUNCTION__, m_alloc_malloc, sz)
-#define calloc(sz)  m_allocator  (__FILE__,__LINE__,__FUNCTION__, m_alloc_calloc, sz)
-#define realloc(ptr,sz) m_reallocator(__FILE__,__LINE__,__FUNCTION__, m_alloc_realloc, sz, ptr)
-#define free(ptr)   m_deallocator(__FILE__,__LINE__,__FUNCTION__, m_alloc_free, ptr)
+#define new             (m_setOwner   (__FILE__, __LINE__, __FUNCTION__), false) ? nullptr : new
+#define delete          (m_setOwner   (__FILE__, __LINE__, __FUNCTION__), false) ? m_setOwner("", 0, "") : delete
+#define malloc(sz)      m_allocator   (__FILE__, __LINE__, __FUNCTION__, m_alloc_malloc, sz)
+#define calloc(sz)      m_allocator   (__FILE__, __LINE__, __FUNCTION__, m_alloc_calloc, sz)
+#define realloc(ptr,sz) m_reallocator (__FILE__, __LINE__, __FUNCTION__, m_alloc_realloc, sz, ptr)
+#define free(ptr)       m_deallocator (__FILE__, __LINE__, __FUNCTION__, m_alloc_free, ptr)
+#define strdup(str)		m_allocatorCpy(__FILE__, __LINE__, __FUNCTION__, m_alloc_malloc, str)
+#define _strdup(str)	m_allocatorCpy(__FILE__, __LINE__, __FUNCTION__, m_alloc_malloc, str)
 
 // ---------------------------------------------------------------------------------------------------------------------------------
 // mmgr.h - End of file
