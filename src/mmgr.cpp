@@ -84,12 +84,34 @@
 #include <time.h>
 #include <stdarg.h>
 #include <new>
+#include <mutex>
 
 #ifndef _WIN32
 #include <unistd.h>
 #endif
 
 #include "mmgr.h"
+
+// Multi thread support
+// ---------------------------------------------------------------------------------------------------------------------------------
+
+class fake_mutex : public std::recursive_mutex {
+public:
+    void lock() { }
+    bool try_lock() { return true; }
+    void unlock() { }
+};
+
+fake_mutex	            gFakeMutex;
+std::recursive_mutex	gRealMutex;
+std::recursive_mutex    *gpMutex = &gFakeMutex;
+
+// ---------------------------------------------------------------------------------------------------------------------------------
+void
+EnableMultithreadInMMGR() 
+{
+    gpMutex = &gRealMutex;
+}
 
 // ---------------------------------------------------------------------------------------------------------------------------------
 // -DOC- If you're like me, it's hard to gain trust in foreign code. This memory manager will try to INDUCE your code to crash (for
@@ -761,6 +783,8 @@ static  void    resetGlobals()
 
 void    *operator new(size_t reportedSize)
 {
+    std::lock_guard guard(*gpMutex);
+
     #ifdef TEST_MEMORY_MANAGER
     log("[D] ENTER: new");
     #endif
@@ -819,6 +843,8 @@ void    *operator new(size_t reportedSize)
 
 void    *operator new[](size_t reportedSize)
 {
+    std::lock_guard guard(*gpMutex);
+
     #ifdef TEST_MEMORY_MANAGER
     log("[D] ENTER: new[]");
     #endif
@@ -883,6 +909,8 @@ void    *operator new[](size_t reportedSize)
 
 void    *operator new(size_t reportedSize, const char *sourceFile, int sourceLine)
 {
+    std::lock_guard guard(*gpMutex);
+
     #ifdef TEST_MEMORY_MANAGER
     log("[D] ENTER: new");
     #endif
@@ -935,6 +963,8 @@ void    *operator new(size_t reportedSize, const char *sourceFile, int sourceLin
 
 void    *operator new[](size_t reportedSize, const char *sourceFile, int sourceLine)
 {
+    std::lock_guard guard(*gpMutex);
+
     #ifdef TEST_MEMORY_MANAGER
     log("[D] ENTER: new[]");
     #endif
@@ -992,6 +1022,8 @@ void    *operator new[](size_t reportedSize, const char *sourceFile, int sourceL
 
 void    operator delete(void *reportedAddress)
 {
+    std::lock_guard guard(*gpMutex);
+
     #ifdef TEST_MEMORY_MANAGER
     log("[D] ENTER: delete");
     #endif
@@ -1015,6 +1047,8 @@ void    operator delete(void *reportedAddress)
 
 void    operator delete[](void *reportedAddress)
 {
+    std::lock_guard guard(*gpMutex);
+
     #ifdef TEST_MEMORY_MANAGER
     log("[D] ENTER: delete[]");
     #endif
@@ -1041,6 +1075,8 @@ void    operator delete[](void *reportedAddress)
 
 void    *m_allocator(const char *sourceFile, const unsigned int sourceLine, const char *sourceFunc, const unsigned int allocationType, const size_t reportedSize)
 {
+    std::lock_guard guard(*gpMutex);
+
     try
     {
         #ifdef TEST_MEMORY_MANAGER
@@ -1239,6 +1275,8 @@ m_allocatorCpy(const char *sourceFile, const unsigned int sourceLine, const char
 
 void    *m_reallocator(const char *sourceFile, const unsigned int sourceLine, const char *sourceFunc, const unsigned int reallocationType, const size_t reportedSize, void *reportedAddress)
 {
+    std::lock_guard guard(*gpMutex);
+
     try
     {
         #ifdef TEST_MEMORY_MANAGER
@@ -1438,6 +1476,8 @@ void    *m_reallocator(const char *sourceFile, const unsigned int sourceLine, co
 
 void    m_deallocator(const char *sourceFile, const unsigned int sourceLine, const char *sourceFunc, const unsigned int deallocationType, const void *reportedAddress)
 {
+    std::lock_guard guard(*gpMutex);
+
     try
     {
         #ifdef TEST_MEMORY_MANAGER

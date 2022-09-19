@@ -4,6 +4,8 @@
 //--------------------------------------
 int
 main() {
+    EnableMultithreadInMMGR();
+
     // leaks detection
     //----------------------------------
     auto leak1 = new int;
