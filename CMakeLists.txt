@@ -9,6 +9,8 @@ add_library(mmgr
     src/mmgr.cpp
     src/mmgr.h
     src/nommgr.h
+    src/nomalloc.h
+    src/nonew.h
 )
 
 add_executable(test

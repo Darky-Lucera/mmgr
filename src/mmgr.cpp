@@ -23,7 +23,7 @@
 //  * This software may not be re-distributed (in part or in whole) in a modified
 //    form without clear documentation on how to obtain a copy of the original work.
 //  * You may not use this software to directly or indirectly cause harm to others.
-//  * This software is provided as-is and without warranty. Use at your own risk.
+//  * This software is provided as-is and without warrantee. Use at your own risk.
 //
 // For more information, visit HTTP://www.FluidStudios.com
 //
@@ -58,7 +58,7 @@
 //    code was carefully thought out. If something looks odd, then just assume I've got a good reason for doing it that way (an
 //    example is the use of the class MemStaticTimeTracker.)
 //
-// 5. With MFC applications, you will need to comment out any occurrence of "#define new DEBUG_NEW" from all source files.
+// 5. With MFC applications, you will need to comment out any occurance of "#define new DEBUG_NEW" from all source files.
 //
 // 6. Include file dependencies are _very_important_ for getting the MMGR to integrate nicely into your application. Be careful if
 //    you're including standard includes from within your own project inclues; that will break this very specific dependency order.
@@ -76,7 +76,7 @@
 //
 // ---------------------------------------------------------------------------------------------------------------------------------
 
-#include <iostream>
+//#include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
@@ -149,21 +149,21 @@
 // ---------------------------------------------------------------------------------------------------------------------------------
 
 #ifdef  STRESS_TEST
-static const unsigned int   hashBits               = 12;
-static       bool           randomWipe             = true;
-static       bool           alwaysValidateAll      = true;
-static       bool           alwaysLogAll           = true;
-static       bool           alwaysWipeAll          = true;
-static       bool           cleanupLogOnFirstRun   = true;
-static const unsigned int   paddingSize            = 1024; // An extra 8K per allocation!
+static  const unsigned int  hashBits               = 12;
+static  bool                randomWipe             = true;
+static  bool                alwaysValidateAll      = true;
+static  bool                alwaysLogAll           = true;
+static  bool                alwaysWipeAll          = true;
+static  bool                cleanupLogOnFirstRun   = true;
+static  const unsigned int  paddingSize            = 1024; // An extra 8K per allocation!
 #else
-static const unsigned int   hashBits               = 12;
-static       bool           randomWipe             = false;
-static       bool           alwaysValidateAll      = false;
-static       bool           alwaysLogAll           = false;
-static       bool           alwaysWipeAll          = true;
-static       bool           cleanupLogOnFirstRun   = true;
-static const unsigned int   paddingSize            = 4;
+static  const unsigned int  hashBits               = 12;
+static  bool                randomWipe             = false;
+static  bool                alwaysValidateAll      = false;
+static  bool                alwaysLogAll           = false;
+static  bool                alwaysWipeAll          = true;
+static  bool                cleanupLogOnFirstRun   = true;
+static  const unsigned int  paddingSize            = 4;
 #endif
 
 // ---------------------------------------------------------------------------------------------------------------------------------
@@ -207,47 +207,46 @@ static const unsigned int   paddingSize            = 4;
 // Defaults for the constants & statics in the MemoryManager class
 // ---------------------------------------------------------------------------------------------------------------------------------
 
-const       unsigned int    m_alloc_unknown        = 0;
-const       unsigned int    m_alloc_new            = 1;
-const       unsigned int    m_alloc_new_array      = 2;
-const       unsigned int    m_alloc_malloc         = 3;
-const       unsigned int    m_alloc_calloc         = 4;
-const       unsigned int    m_alloc_realloc        = 5;
-const       unsigned int    m_alloc_delete         = 6;
-const       unsigned int    m_alloc_delete_array   = 7;
-const       unsigned int    m_alloc_free           = 8;
+const   unsigned int    m_alloc_unknown        = 0;
+const   unsigned int    m_alloc_new            = 1;
+const   unsigned int    m_alloc_new_array      = 2;
+const   unsigned int    m_alloc_malloc         = 3;
+const   unsigned int    m_alloc_calloc         = 4;
+const   unsigned int    m_alloc_realloc        = 5;
+const   unsigned int    m_alloc_delete         = 6;
+const   unsigned int    m_alloc_delete_array   = 7;
+const   unsigned int    m_alloc_free           = 8;
 
 // ---------------------------------------------------------------------------------------------------------------------------------
 // -DOC- Get to know these values. They represent the values that will be used to fill unused and deallocated RAM.
 // ---------------------------------------------------------------------------------------------------------------------------------
 
-static      unsigned int    prefixPattern          = 0xbaadf00d; // Fill pattern for bytes preceeding allocated blocks
-static      unsigned int    postfixPattern         = 0xdeadc0de; // Fill pattern for bytes following allocated blocks
-static      unsigned int    unusedPattern          = 0xfeedface; // Fill pattern for freshly allocated blocks
-static      unsigned int    releasedPattern        = 0xdeadbeef; // Fill pattern for deallocated blocks
+static  unsigned int    prefixPattern          = 0xbaadf00d; // Fill pattern for bytes preceeding allocated blocks
+static  unsigned int    postfixPattern         = 0xdeadc0de; // Fill pattern for bytes following allocated blocks
+static  unsigned int    unusedPattern          = 0xfeedface; // Fill pattern for freshly allocated blocks
+static  unsigned int    releasedPattern        = 0xdeadbeef; // Fill pattern for deallocated blocks
 
 // ---------------------------------------------------------------------------------------------------------------------------------
 // Other locals
 // ---------------------------------------------------------------------------------------------------------------------------------
 
-static  const   unsigned int    hashSize               = 1 << hashBits;
-static  const   char        *allocationTypes[]     = {"Unknown",
-                              "new",     "new[]",  "malloc",   "calloc",
-                              "realloc", "delete", "delete[]", "free"};
-static      sAllocUnit  *hashTable[hashSize];
-static      sAllocUnit  *reservoir;
-static      unsigned int    currentAllocationCount = 0;
-static      unsigned int    breakOnAllocationCount = 0;
-static      sMStats     stats;
-static  const   char        *sourceFile            = "??";
-static  const   char        *sourceFunc            = "??";
-static      unsigned int    sourceLine             = 0;
-static      bool        staticDeinitTime       = false;
-static      sAllocUnit  **reservoirBuffer      = NULL;
-static      unsigned int    reservoirBufferSize    = 0;
-static const    char        *memoryLogFile         = "memory.log";
-static const    char        *memoryLeakLogFile     = "memleaks.log";
-static      void        doCleanupLogOnFirstRun();
+static  const unsigned int      hashSize               = 1 << hashBits;
+static  const char              *allocationTypes[]     = {"Unknown", "new",     "new[]",  "malloc",   "calloc", "realloc", "delete", "delete[]", "free"};
+static  sAllocUnit              *hashTable[hashSize];
+static  sAllocUnit              *reservoir;
+static  unsigned int            currentAllocationCount = 0;
+static  unsigned int            breakOnAllocationCount = 0;
+static  sMStats                 stats;
+static  const char              *sourceFile            = "??";
+static  const char              *sourceFunc            = "??";
+static  unsigned int            sourceLine             = 0;
+static  bool                    staticDeinitTime       = false;
+static  sAllocUnit              **reservoirBuffer      = nullptr;
+static  unsigned int            reservoirBufferSize    = 0;
+static  const char              *memoryLogFile         = "memory.log";
+static  const char              *memoryLeakLogFile     = "memleaks.log";
+
+static  void                    doCleanupLogOnFirstRun();
 
 // ---------------------------------------------------------------------------------------------------------------------------------
 // Local functions only
@@ -297,7 +296,7 @@ static  void    doCleanupLogOnFirstRun()
 
         // Print a header for the log
 
-        time_t  t = time(NULL);
+        time_t  t = time(nullptr);
         log("--------------------------------------------------------------------------------");
         log("");
         log("      %s - Memory logging file created on %s", memoryLogFile, asctime(localtime(&t)));
@@ -346,7 +345,7 @@ static  const char  *ownerString(const char *sourceFile, const unsigned int sour
 {
     static  char    str[90];
     memset(str, 0, sizeof(str));
-    sprintf(str, "%s(% 5d)::%s", sourceFileStripper(sourceFile), sourceLine, sourceFunc);
+    sprintf(str, "%s(%05d)::%s", sourceFileStripper(sourceFile), sourceLine, sourceFunc);
     return str;
 }
 
@@ -393,21 +392,21 @@ static  const char  *memorySizeString(unsigned long size)
 static  sAllocUnit  *findAllocUnit(const void *reportedAddress)
 {
     // Just in case...
-    m_assert(reportedAddress != NULL);
+    m_assert(reportedAddress != nullptr);
 
     // Use the address to locate the hash index. Note that we shift off the lower four bits. This is because most allocated
     // addresses will be on four-, eight- or even sixteen-byte boundaries. If we didn't do this, the hash index would not have
     // very good coverage.
 
-    unsigned int    hashIndex = (reinterpret_cast<size_t>(const_cast<void *>(reportedAddress)) >> 4) & (hashSize - 1);
-    sAllocUnit  *ptr = hashTable[hashIndex];
+    size_t      hashIndex = (reinterpret_cast<size_t>(const_cast<void *>(reportedAddress)) >> 4) & (hashSize - 1);
+    sAllocUnit  *ptr      = hashTable[hashIndex];
     while(ptr)
     {
         if (ptr->reportedAddress == reportedAddress) return ptr;
         ptr = ptr->next;
     }
 
-    return NULL;
+    return nullptr;
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------
@@ -438,7 +437,7 @@ static  void    *calculateReportedAddress(const void *actualAddress)
 {
     // We allow this...
 
-    if (!actualAddress) return NULL;
+    if (!actualAddress) return nullptr;
 
     // JUst account for the padding
 
@@ -505,9 +504,9 @@ static  void    wipeWithPattern(sAllocUnit *allocUnit, unsigned long pattern, co
 
 static  void    dumpAllocations(FILE *fp)
 {
-    fprintf(fp, "Alloc.   Addr               Size      Addr               Size                          BreakOn BreakOn              \r\n");
-    fprintf(fp, "Number Reported           Reported   Actual             Actual     Unused     Method   Dealloc Realloc Allocated by \r\n");
-    fprintf(fp, "------ ------------------ ---------- ------------------ ---------- ---------- -------- ------- ------- --------------------------------------------------- \r\n");
+    fprintf(fp, "Alloc.   Addr       Size       Addr       Size                        BreakOn BreakOn              \r\n");
+    fprintf(fp, "Number Reported   Reported    Actual     Actual     Unused    Method  Dealloc Realloc Allocated by \r\n");
+    fprintf(fp, "------ ---------- ---------- ---------- ---------- ---------- -------- ------- ------- --------------------------------------------------- \r\n");
 
 
     for (unsigned int i = 0; i < hashSize; i++)
@@ -515,7 +514,7 @@ static  void    dumpAllocations(FILE *fp)
         sAllocUnit *ptr = hashTable[i];
         while(ptr)
         {
-            fprintf(fp, "%6d 0x%016zX %10zu 0x%016zX %10zu %10u %-8s    %c       %c    %s\r\n",
+            fprintf(fp, "%06d 0x%08zX 0x%08zX 0x%08zX 0x%08zX 0x%08X %-8s    %c       %c    %s\r\n",
                 ptr->allocationNumber,
                 reinterpret_cast<size_t>(ptr->reportedAddress), ptr->reportedSize,
                 reinterpret_cast<size_t>(ptr->actualAddress), ptr->actualSize,
@@ -548,7 +547,7 @@ static  void    dumpLeakReport()
 
     static  char    timeString[25];
     memset(timeString, 0, sizeof(timeString));
-    time_t  t = time(NULL);
+    time_t  t = time(nullptr);
     struct  tm *tme = localtime(&t);
     fprintf(fp, " ---------------------------------------------------------------------------------------------------------------------------------- \r\n");
     fprintf(fp, "|                                          Memory leak report for:  %02d/%02d/%04d %02d:%02d:%02d                                            |\r\n", tme->tm_mon + 1, tme->tm_mday, tme->tm_year + 1900, tme->tm_hour, tme->tm_min, tme->tm_sec);
@@ -574,7 +573,7 @@ static  void    dumpLeakReport()
             free(reservoirBuffer);
             reservoirBuffer = 0;
             reservoirBufferSize = 0;
-            reservoir = NULL;
+            reservoir = nullptr;
         }
     }
     fprintf(fp, "\r\n");
@@ -646,7 +645,7 @@ bool    &m_breakOnRealloc(void *reportedAddress)
 
     // If you hit this assert, you tried to set a breakpoint on reallocation for an address that doesn't exist. Interrogate the
     // stack frame or the variable 'au' to see which allocation this is.
-    m_assert(au != NULL);
+    m_assert(au != nullptr);
 
     // If you hit this assert, you tried to set a breakpoint on reallocation for an address that wasn't allocated in a way that
     // is compatible with reallocation.
@@ -670,7 +669,7 @@ bool    &m_breakOnDealloc(void *reportedAddress)
 
     // If you hit this assert, you tried to set a breakpoint on deallocation for an address that doesn't exist. Interrogate the
     // stack frame or the variable 'au' to see which allocation this is.
-    m_assert(au != NULL);
+    m_assert(au != nullptr);
 
     return au->breakOnDealloc;
 }
@@ -725,8 +724,8 @@ void    m_setOwner(const char *file, const unsigned int line, const char *func)
     // lose it. That's what this is all about. It makes it somewhat confusing to read in the logs, but at least ALL the
     // information is present...
     //
-    // There's a caveat here... The compiler is not required to call operator delete if the value being deleted is NULL.
-    // In this case, any call to delete with a NULL will sill call m_setOwner(), which will make m_setOwner() think that
+    // There's a caveat here... The compiler is not required to call operator delete if the value being deleted is nullptr.
+    // In this case, any call to delete with a nullptr will sill call m_setOwner(), which will make m_setOwner() think that
     // there is a destructor chain becuase we setup the variables, but nothing gets called to clear them. Because of this
     // we report a "Possible destructor chain".
     //
@@ -791,7 +790,7 @@ void    *operator new(size_t reportedSize)
             return ptr;
         }
 
-        // There isn't a way to determine the new handler, except through setting it. So we'll just set it to NULL, then
+        // There isn't a way to determine the new handler, except through setting it. So we'll just set it to nullptr, then
         // set it back again.
 
         std::new_handler nh = std::set_new_handler(0);
@@ -849,7 +848,7 @@ void    *operator new[](size_t reportedSize)
             return ptr;
         }
 
-        // There isn't a way to determine the new handler, except through setting it. So we'll just set it to NULL, then
+        // There isn't a way to determine the new handler, except through setting it. So we'll just set it to nullptr, then
         // set it back again.
 
         std::new_handler nh = std::set_new_handler(0);
@@ -907,7 +906,7 @@ void    *operator new(size_t reportedSize, const char *sourceFile, int sourceLin
             return ptr;
         }
 
-        // There isn't a way to determine the new handler, except through setting it. So we'll just set it to NULL, then
+        // There isn't a way to determine the new handler, except through setting it. So we'll just set it to nullptr, then
         // set it back again.
 
         std::new_handler nh = std::set_new_handler(0);
@@ -959,7 +958,7 @@ void    *operator new[](size_t reportedSize, const char *sourceFile, int sourceL
             return ptr;
         }
 
-        // There isn't a way to determine the new handler, except through setting it. So we'll just set it to NULL, then
+        // There isn't a way to determine the new handler, except through setting it. So we'll just set it to nullptr, then
         // set it back again.
 
         std::new_handler nh = std::set_new_handler(0);
@@ -997,10 +996,10 @@ void    operator delete(void *reportedAddress)
     log("[D] ENTER: delete");
     #endif
 
-    // ANSI says: delete & delete[] allow NULL pointers (they do nothing)
+    // ANSI says: delete & delete[] allow nullptr pointers (they do nothing)
 
     if (reportedAddress) m_deallocator(sourceFile, sourceLine, sourceFunc, m_alloc_delete, reportedAddress);
-    else if (alwaysLogAll) log("[-] ----- %8s of NULL                      by %s", allocationTypes[m_alloc_delete], ownerString(sourceFile, sourceLine, sourceFunc));
+    else if (alwaysLogAll) log("[-] ----- %8s of nullptr                      by %s", allocationTypes[m_alloc_delete], ownerString(sourceFile, sourceLine, sourceFunc));
 
     // Resetting the globals insures that if at some later time, somebody calls our memory manager from an unknown
     // source (i.e. they didn't include our H file) then we won't think it was the last allocation.
@@ -1020,11 +1019,11 @@ void    operator delete[](void *reportedAddress)
     log("[D] ENTER: delete[]");
     #endif
 
-    // ANSI says: delete & delete[] allow NULL pointers (they do nothing)
+    // ANSI says: delete & delete[] allow nullptr pointers (they do nothing)
 
     if (reportedAddress) m_deallocator(sourceFile, sourceLine, sourceFunc, m_alloc_delete_array, reportedAddress);
     else if (alwaysLogAll)
-        log("[-] ----- %8s of NULL                      by %s", allocationTypes[m_alloc_delete_array], ownerString(sourceFile, sourceLine, sourceFunc));
+        log("[-] ----- %8s of nullptr                      by %s", allocationTypes[m_alloc_delete_array], ownerString(sourceFile, sourceLine, sourceFunc));
 
     // Resetting the globals insures that if at some later time, somebody calls our memory manager from an unknown
     // source (i.e. they didn't include our H file) then we won't think it was the last allocation.
@@ -1069,11 +1068,11 @@ void    *m_allocator(const char *sourceFile, const unsigned int sourceLine, cons
 
             // If you hit this assert, then the memory manager failed to allocate internal memory for tracking the
             // allocations
-            m_assert(reservoir != NULL);
+            m_assert(reservoir != nullptr);
 
             // Danger Will Robinson!
 
-            if (reservoir == NULL) throw "Unable to allocate RAM for internal memory tracking data";
+            if (reservoir == nullptr) throw "Unable to allocate RAM for internal memory tracking data";
 
             // Build a linked-list of the elements in our reservoir
 
@@ -1095,7 +1094,7 @@ void    *m_allocator(const char *sourceFile, const unsigned int sourceLine, cons
         }
 
         // Logical flow says this should never happen...
-        m_assert(reservoir != NULL);
+        m_assert(reservoir != nullptr);
 
         // Grab a new allocaton unit from the front of the reservoir
 
@@ -1116,7 +1115,7 @@ void    *m_allocator(const char *sourceFile, const unsigned int sourceLine, cons
         else
         {
             log("[F] Random faiure");
-            au->actualAddress = NULL;
+            au->actualAddress = nullptr;
         }
         #else
         au->actualAddress     = malloc(au->actualSize);
@@ -1136,10 +1135,10 @@ void    *m_allocator(const char *sourceFile, const unsigned int sourceLine, cons
         #ifndef RANDOM_FAILURE
         // If you hit this assert, then the requested allocation simply failed (you're out of memory.) Interrogate the
         // variable 'au' or the stack frame to see what you were trying to do.
-        m_assert(au->actualAddress != NULL);
+        m_assert(au->actualAddress != nullptr);
         #endif
 
-        if (au->actualAddress == NULL)
+        if (au->actualAddress == nullptr)
         {
             throw "Request for allocation failed. Out of memory.";
         }
@@ -1150,10 +1149,10 @@ void    *m_allocator(const char *sourceFile, const unsigned int sourceLine, cons
 
         // Insert the new allocation into the hash table
 
-        unsigned int    hashIndex = (reinterpret_cast<size_t>(au->reportedAddress) >> 4) & (hashSize - 1);
+        size_t  hashIndex = (reinterpret_cast<size_t>(au->reportedAddress) >> 4) & (hashSize - 1);
         if (hashTable[hashIndex]) hashTable[hashIndex]->prev = au;
         au->next = hashTable[hashIndex];
-        au->prev = NULL;
+        au->prev = nullptr;
         hashTable[hashIndex] = au;
 
         // Account for the new allocatin unit in our stats
@@ -1185,7 +1184,7 @@ void    *m_allocator(const char *sourceFile, const unsigned int sourceLine, cons
 
         // Log the result
 
-        if (alwaysLogAll) log("[+] ---->             addr 0x%08X", reinterpret_cast<size_t>(au->reportedAddress));
+        if (alwaysLogAll) log("[+] ---->             addr 0x%08zx", reinterpret_cast<size_t>(au->reportedAddress));
 
         // Resetting the globals insures that if at some later time, somebody calls our memory manager from an unknown
         // source (i.e. they didn't include our H file) then we won't think it was the last allocation.
@@ -1211,7 +1210,7 @@ void    *m_allocator(const char *sourceFile, const unsigned int sourceLine, cons
         log("[D] EXIT : m_allocator()");
         #endif
 
-        return NULL;
+        return nullptr;
     }
 }
 
@@ -1227,7 +1226,7 @@ void    *m_reallocator(const char *sourceFile, const unsigned int sourceLine, co
         log("[D] ENTER: m_reallocator()");
         #endif
 
-        // Calling realloc with a NULL should force same operations as a malloc
+        // Calling realloc with a nullptr should force same operations as a malloc
 
         if (!reportedAddress)
         {
@@ -1250,8 +1249,8 @@ void    *m_reallocator(const char *sourceFile, const unsigned int sourceLine, co
         sAllocUnit  *au = findAllocUnit(reportedAddress);
 
         // If you hit this assert, you tried to reallocate RAM that wasn't allocated by this memory manager.
-        m_assert(au != NULL);
-        if (au == NULL) throw "Request to reallocate RAM that was never allocated";
+        m_assert(au != nullptr);
+        if (au == nullptr) throw "Request to reallocate RAM that was never allocated";
 
         // If you hit this assert, then the allocation unit that is about to be reallocated is damaged. But you probably
         // already know that from a previous assert you should have seen in validateAllocUnit() :)
@@ -1282,7 +1281,7 @@ void    *m_reallocator(const char *sourceFile, const unsigned int sourceLine, co
 
         void    *oldReportedAddress = reportedAddress;
         size_t  newActualSize = calculateActualSize(reportedSize);
-        void    *newActualAddress = NULL;
+        void    *newActualAddress = nullptr;
         #ifdef RANDOM_FAILURE
         double  a = rand();
         double  b = RAND_MAX / 100.0 * RANDOM_FAILURE;
@@ -1336,7 +1335,7 @@ void    *m_reallocator(const char *sourceFile, const unsigned int sourceLine, co
             // Remove this allocation unit from the hash table
 
             {
-                unsigned int    hashIndex = (reinterpret_cast<size_t>(oldReportedAddress) >> 4) & (hashSize - 1);
+                size_t  hashIndex = (reinterpret_cast<size_t>(oldReportedAddress) >> 4) & (hashSize - 1);
                 if (hashTable[hashIndex] == au)
                 {
                     hashTable[hashIndex] = hashTable[hashIndex]->next;
@@ -1353,7 +1352,7 @@ void    *m_reallocator(const char *sourceFile, const unsigned int sourceLine, co
             hashIndex = (reinterpret_cast<size_t>(au->reportedAddress) >> 4) & (hashSize - 1);
             if (hashTable[hashIndex]) hashTable[hashIndex]->prev = au;
             au->next = hashTable[hashIndex];
-            au->prev = NULL;
+            au->prev = nullptr;
             hashTable[hashIndex] = au;
         }
 
@@ -1384,7 +1383,7 @@ void    *m_reallocator(const char *sourceFile, const unsigned int sourceLine, co
 
         // Log the result
 
-        if (alwaysLogAll) log("[~] ---->             addr 0x%08X", reinterpret_cast<size_t>(au->reportedAddress));
+        if (alwaysLogAll) log("[~] ---->             addr 0x%08zX", reinterpret_cast<size_t>(au->reportedAddress));
 
         // Resetting the globals insures that if at some later time, somebody calls our memory manager from an unknown
         // source (i.e. they didn't include our H file) then we won't think it was the last allocation.
@@ -1410,7 +1409,7 @@ void    *m_reallocator(const char *sourceFile, const unsigned int sourceLine, co
         log("[D] EXIT : m_reallocator()");
         #endif
 
-        return NULL;
+        return nullptr;
     }
 }
 
@@ -1428,10 +1427,10 @@ void    m_deallocator(const char *sourceFile, const unsigned int sourceLine, con
 
         // Log the request
 
-        if (alwaysLogAll) log("[-] ----- %8s of addr 0x%08X           by %s", allocationTypes[deallocationType], reinterpret_cast<size_t>(const_cast<void *>(reportedAddress)), ownerString(sourceFile, sourceLine, sourceFunc));
+        if (alwaysLogAll) log("[-] ----- %8s of addr 0x%08zX           by %s", allocationTypes[deallocationType], reinterpret_cast<size_t>(const_cast<void *>(reportedAddress)), ownerString(sourceFile, sourceLine, sourceFunc));
 
-        // We should only ever get here with a null pointer if they try to do so with a call to free() (delete[] and delete will
-        // both bail before they get here.) So, since ANSI allows free(NULL), we'll not bother trying to actually free the allocated
+        // We should only ever get here with a nullptr pointer if they try to do so with a call to free() (delete[] and delete will
+        // both bail before they get here.) So, since ANSI allows free(nullptr), we'll not bother trying to actually free the allocated
         // memory or track it any further.
 
         if (reportedAddress)
@@ -1441,8 +1440,8 @@ void    m_deallocator(const char *sourceFile, const unsigned int sourceLine, con
             sAllocUnit  *au = findAllocUnit(reportedAddress);
 
             // If you hit this assert, you tried to deallocate RAM that wasn't allocated by this memory manager.
-            m_assert(au != NULL);
-            if (au == NULL) throw "Request to deallocate RAM that was never allocated";
+            m_assert(au != nullptr);
+            if (au == nullptr) throw "Request to deallocate RAM that was never allocated";
 
             // If you hit this assert, then the allocation unit that is about to be deallocated is damaged. But you probably
             // already know that from a previous assert you should have seen in validateAllocUnit() :)
@@ -1460,7 +1459,7 @@ void    m_deallocator(const char *sourceFile, const unsigned int sourceLine, con
                 (deallocationType == m_alloc_free         && au->allocationType == m_alloc_malloc   ) ||
                 (deallocationType == m_alloc_free         && au->allocationType == m_alloc_calloc   ) ||
                 (deallocationType == m_alloc_free         && au->allocationType == m_alloc_realloc  ) ||
-                (deallocationType == m_alloc_unknown                                                )
+                (deallocationType == m_alloc_unknown                                                ) 
             );
 
             // If you hit this assert, then the "break on dealloc" flag for this allocation unit is set. Interrogate the 'au'
@@ -1478,7 +1477,7 @@ void    m_deallocator(const char *sourceFile, const unsigned int sourceLine, con
 
             // Remove this allocation unit from the hash table
 
-            unsigned int    hashIndex = (reinterpret_cast<size_t>(au->reportedAddress) >> 4) & (hashSize - 1);
+            size_t  hashIndex = (reinterpret_cast<size_t>(au->reportedAddress) >> 4) & (hashSize - 1);
             if (hashTable[hashIndex] == au)
             {
                 hashTable[hashIndex] = au->next;
@@ -1537,7 +1536,7 @@ bool    m_validateAddress(const void *reportedAddress)
 {
     // Just see if the address exists in our allocation routines
 
-    return findAllocUnit(reportedAddress) != NULL;
+    return findAllocUnit(reportedAddress) != nullptr;
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------
@@ -1686,7 +1685,7 @@ void    m_dumpMemoryReport(const char *filename, const bool overwrite)
 {
     // Open the report file
 
-    FILE    *fp = NULL;
+    FILE    *fp = nullptr;
 
     if (overwrite)  fp = fopen(filename, "w+b");
     else        fp = fopen(filename, "ab");
@@ -1700,7 +1699,7 @@ void    m_dumpMemoryReport(const char *filename, const bool overwrite)
 
         static  char    timeString[25];
         memset(timeString, 0, sizeof(timeString));
-        time_t  t = time(NULL);
+        time_t  t = time(nullptr);
         struct  tm *tme = localtime(&t);
     fprintf(fp, " ---------------------------------------------------------------------------------------------------------------------------------- \r\n");
         fprintf(fp, "|                                             Memory report for: %02d/%02d/%04d %02d:%02d:%02d                                               |\r\n", tme->tm_mon + 1, tme->tm_mday, tme->tm_year + 1900, tme->tm_hour, tme->tm_min, tme->tm_sec);

@@ -23,7 +23,7 @@
 //  * This software may not be re-distributed (in part or in whole) in a modified
 //    form without clear documentation on how to obtain a copy of the original work.
 //  * You may not use this software to directly or indirectly cause harm to others.
-//  * This software is provided as-is and without warranty. Use at your own risk.
+//  * This software is provided as-is and without warrantee. Use at your own risk.
 //
 // For more information, visit HTTP://www.FluidStudios.com
 //
@@ -51,16 +51,16 @@
 
 typedef struct tag_au
 {
-    size_t      actualSize;
-    size_t      reportedSize;
-    void        *actualAddress;
-    void        *reportedAddress;
-    char        sourceFile[40];
-    char        sourceFunc[40];
+    size_t          actualSize;
+    size_t          reportedSize;
+    void            *actualAddress;
+    void            *reportedAddress;
+    char            sourceFile[40];
+    char            sourceFunc[40];
     unsigned int    sourceLine;
     unsigned int    allocationType;
-    bool        breakOnDealloc;
-    bool        breakOnRealloc;
+    bool            breakOnDealloc;
+    bool            breakOnRealloc;
     unsigned int    allocationNumber;
     struct tag_au   *next;
     struct tag_au   *prev;
@@ -110,12 +110,9 @@ bool        &m_breakOnDealloc(void *reportedAddress);
 // The meat of the memory tracking software
 // ---------------------------------------------------------------------------------------------------------------------------------
 
-void        *m_allocator(const char *sourceFile, const unsigned int sourceLine, const char *sourceFunc,
-                 const unsigned int allocationType, const size_t reportedSize);
-void        *m_reallocator(const char *sourceFile, const unsigned int sourceLine, const char *sourceFunc,
-                   const unsigned int reallocationType, const size_t reportedSize, void *reportedAddress);
-void        m_deallocator(const char *sourceFile, const unsigned int sourceLine, const char *sourceFunc,
-                  const unsigned int deallocationType, const void *reportedAddress);
+void        *m_allocator(const char *sourceFile, const unsigned int sourceLine, const char *sourceFunc, const unsigned int allocationType, const size_t reportedSize);
+void        *m_reallocator(const char *sourceFile, const unsigned int sourceLine, const char *sourceFunc, const unsigned int reallocationType, const size_t reportedSize, void *reportedAddress);
+void        m_deallocator(const char *sourceFile, const unsigned int sourceLine, const char *sourceFunc, const unsigned int deallocationType, const void *reportedAddress);
 
 // ---------------------------------------------------------------------------------------------------------------------------------
 // Utilitarian functions
@@ -158,12 +155,12 @@ void    operator delete[](void *reportedAddress);
 // ---------------------------------------------------------------------------------------------------------------------------------
 
 #include "nommgr.h"
-#define new     (m_setOwner  (__FILE__,__LINE__,__FUNCTION__),false) ? nullptr : new
-#define delete      (m_setOwner  (__FILE__,__LINE__,__FUNCTION__),false) ? m_setOwner("",0,"") : delete
-#define malloc(sz)  m_allocator  (__FILE__,__LINE__,__FUNCTION__,m_alloc_malloc,sz)
-#define calloc(sz)  m_allocator  (__FILE__,__LINE__,__FUNCTION__,m_alloc_calloc,sz)
-#define realloc(ptr,sz) m_reallocator(__FILE__,__LINE__,__FUNCTION__,m_alloc_realloc,sz,ptr)
-#define free(ptr)   m_deallocator(__FILE__,__LINE__,__FUNCTION__,m_alloc_free,ptr)
+#define new         (m_setOwner  (__FILE__,__LINE__,__FUNCTION__), false) ? nullptr : new
+#define delete      (m_setOwner  (__FILE__,__LINE__,__FUNCTION__), false) ? m_setOwner("",0,"") : delete
+#define malloc(sz)  m_allocator  (__FILE__,__LINE__,__FUNCTION__, m_alloc_malloc, sz)
+#define calloc(sz)  m_allocator  (__FILE__,__LINE__,__FUNCTION__, m_alloc_calloc, sz)
+#define realloc(ptr,sz) m_reallocator(__FILE__,__LINE__,__FUNCTION__, m_alloc_realloc, sz, ptr)
+#define free(ptr)   m_deallocator(__FILE__,__LINE__,__FUNCTION__, m_alloc_free, ptr)
 
 // ---------------------------------------------------------------------------------------------------------------------------------
 // mmgr.h - End of file
