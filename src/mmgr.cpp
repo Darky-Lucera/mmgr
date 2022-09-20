@@ -95,18 +95,24 @@
 // Multi thread support
 // ---------------------------------------------------------------------------------------------------------------------------------
 
-class fake_mutex : public std::recursive_mutex {
+class fake_mutex {
 public:
-    void lock() { }
-    bool try_lock() { return true; }
-    void unlock() { }
+    fake_mutex(bool work) : isReal(work) {}
+
+    inline void lock()     { if(isReal) mutex.lock();   }
+    inline bool try_lock() { return isReal ? mutex.try_lock() : true; }
+    inline void unlock()   { if(isReal) mutex.unlock(); }
+
+protected:
+    std::recursive_mutex    mutex;
+    bool                    isReal { false };
 };
 
-fake_mutex              gFakeMutex;
-std::recursive_mutex    gRealMutex;
-std::recursive_mutex    *gpMutex = &gFakeMutex;
+fake_mutex  gFakeMutex(false);
+fake_mutex  gRealMutex(true);
+fake_mutex  *gpMutex = &gFakeMutex;
 
-using lock_guard = std::lock_guard<std::recursive_mutex>;
+using lock_guard = std::lock_guard<fake_mutex>;
 
 // ---------------------------------------------------------------------------------------------------------------------------------
 void
