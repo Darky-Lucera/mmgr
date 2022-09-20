@@ -102,13 +102,15 @@ public:
     void unlock() { }
 };
 
-fake_mutex	            gFakeMutex;
-std::recursive_mutex	gRealMutex;
+fake_mutex              gFakeMutex;
+std::recursive_mutex    gRealMutex;
 std::recursive_mutex    *gpMutex = &gFakeMutex;
+
+using lock_guard = std::lock_guard<std::recursive_mutex>;
 
 // ---------------------------------------------------------------------------------------------------------------------------------
 void
-EnableMultithreadInMMGR() 
+EnableMultithreadInMMGR()
 {
     gpMutex = &gRealMutex;
 }
@@ -624,7 +626,7 @@ static  MemStaticTimeTracker    mstt;
 // -DOC- Flags & options -- Call these routines to enable/disable the following options
 // ---------------------------------------------------------------------------------------------------------------------------------
 
-void    m_alwaysValidateAll(bool set) 
+void    m_alwaysValidateAll(bool set)
 {
     m_alwaysValidateAll() = set;
 }
@@ -813,7 +815,7 @@ static  void    resetGlobals()
 
 void    *operator new(size_t reportedSize)
 {
-    std::lock_guard guard(*gpMutex);
+    lock_guard guard(*gpMutex);
 
     #ifdef TEST_MEMORY_MANAGER
     log("[D] ENTER: new");
@@ -873,7 +875,7 @@ void    *operator new(size_t reportedSize)
 
 void    *operator new[](size_t reportedSize)
 {
-    std::lock_guard guard(*gpMutex);
+    lock_guard guard(*gpMutex);
 
     #ifdef TEST_MEMORY_MANAGER
     log("[D] ENTER: new[]");
@@ -939,7 +941,7 @@ void    *operator new[](size_t reportedSize)
 
 void    *operator new(size_t reportedSize, const char *sourceFile, int sourceLine)
 {
-    std::lock_guard guard(*gpMutex);
+    lock_guard guard(*gpMutex);
 
     #ifdef TEST_MEMORY_MANAGER
     log("[D] ENTER: new");
@@ -993,7 +995,7 @@ void    *operator new(size_t reportedSize, const char *sourceFile, int sourceLin
 
 void    *operator new[](size_t reportedSize, const char *sourceFile, int sourceLine)
 {
-    std::lock_guard guard(*gpMutex);
+    lock_guard guard(*gpMutex);
 
     #ifdef TEST_MEMORY_MANAGER
     log("[D] ENTER: new[]");
@@ -1052,7 +1054,7 @@ void    *operator new[](size_t reportedSize, const char *sourceFile, int sourceL
 
 void    operator delete(void *reportedAddress)
 {
-    std::lock_guard guard(*gpMutex);
+    lock_guard guard(*gpMutex);
 
     #ifdef TEST_MEMORY_MANAGER
     log("[D] ENTER: delete");
@@ -1077,7 +1079,7 @@ void    operator delete(void *reportedAddress)
 
 void    operator delete[](void *reportedAddress)
 {
-    std::lock_guard guard(*gpMutex);
+    lock_guard guard(*gpMutex);
 
     #ifdef TEST_MEMORY_MANAGER
     log("[D] ENTER: delete[]");
@@ -1105,7 +1107,7 @@ void    operator delete[](void *reportedAddress)
 
 void    *m_allocator(const char *sourceFile, const unsigned int sourceLine, const char *sourceFunc, const unsigned int allocationType, const size_t reportedSize)
 {
-    std::lock_guard guard(*gpMutex);
+    lock_guard guard(*gpMutex);
 
     try
     {
@@ -1288,7 +1290,7 @@ char *
 m_allocatorCpy(const char *sourceFile, const unsigned int sourceLine, const char *sourceFunc, const unsigned int allocationType, const char *_str)
 {
     char *memory;
-    size_t	size;
+    size_t  size;
 
     assert(_str != nullptr);
     size = strlen(_str);
@@ -1305,7 +1307,7 @@ m_allocatorCpy(const char *sourceFile, const unsigned int sourceLine, const char
 
 void    *m_reallocator(const char *sourceFile, const unsigned int sourceLine, const char *sourceFunc, const unsigned int reallocationType, const size_t reportedSize, void *reportedAddress)
 {
-    std::lock_guard guard(*gpMutex);
+    lock_guard guard(*gpMutex);
 
     try
     {
@@ -1506,7 +1508,7 @@ void    *m_reallocator(const char *sourceFile, const unsigned int sourceLine, co
 
 void    m_deallocator(const char *sourceFile, const unsigned int sourceLine, const char *sourceFunc, const unsigned int deallocationType, const void *reportedAddress)
 {
-    std::lock_guard guard(*gpMutex);
+    lock_guard guard(*gpMutex);
 
     try
     {
@@ -1548,7 +1550,7 @@ void    m_deallocator(const char *sourceFile, const unsigned int sourceLine, con
                 (deallocationType == m_alloc_free         && au->allocationType == m_alloc_malloc   ) ||
                 (deallocationType == m_alloc_free         && au->allocationType == m_alloc_calloc   ) ||
                 (deallocationType == m_alloc_free         && au->allocationType == m_alloc_realloc  ) ||
-                (deallocationType == m_alloc_unknown                                                ) 
+                (deallocationType == m_alloc_unknown                                                )
             );
 
             // If you hit this assert, then the "break on dealloc" flag for this allocation unit is set. Interrogate the 'au'
