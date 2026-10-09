@@ -2,6 +2,8 @@
 
 This is a modernized version of the classic MMGR from **Paul Nettle** ( https://www.paulnettle.com/ ). First appeared in flipcode article **Presenting A Memory Manager** (12 September 2000) ( https://www.flipcode.com/archives/Presenting_A_Memory_Manager.shtml ).
 
+The original source code, as released by the author, is available at <https://github.com/nettlep/mmgr>.
+
 As we used it a lot at **Lucera** in our game engine **MindShake** (since 2009) we want to contribute with a modernized version of it. It has helped us to find several problems with memory: leaks, overflows, underflows, ...
 
 I re-do this version from scratch from the last 'official version' (2010-12-31) adding the changes that we did for MindShake. At this point, this version, is not tested.
@@ -96,3 +98,11 @@ Number Reported   Reported    Actual     Actual     Unused    Method  Dealloc Re
 000004 0x564F523D52A0 0x00000014 0x564F523D5280 0x00000054 0x00000010 malloc      N       N    testC.c(   25)::main
 000005 0x564F523D5300 0x00000014 0x564F523D52E0 0x00000054 0x00000010 malloc      N       N    testC.c(   31)::main
 ```
+
+## License
+
+This project is released under the MIT License. See [LICENSE](LICENSE).
+
+The original code was written by Paul Nettle and first published on flipcode in 2000 under a custom license. In 2025 the author re-released it under the MIT License at <https://github.com/nettlep/mmgr>. The original copyright notices are kept in the source files.
+
+The changes in this repository are released under the same MIT License.

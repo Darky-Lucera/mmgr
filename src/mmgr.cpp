@@ -16,16 +16,11 @@
 //
 // ---------------------------------------------------------------------------------------------------------------------------------
 //
-// Restrictions & freedoms pertaining to usage and redistribution of this software:
+// Originally released under a custom license.
+// This historical re-release is provided under the MIT License.
+// See the LICENSE file in the repo root for details.
 //
-//  * This software is 100% free
-//  * If you use this software (in part or in whole) you must credit the author.
-//  * This software may not be re-distributed (in part or in whole) in a modified
-//    form without clear documentation on how to obtain a copy of the original work.
-//  * You may not use this software to directly or indirectly cause harm to others.
-//  * This software is provided as-is and without warrantee. Use at your own risk.
-//
-// For more information, visit HTTP://www.FluidStudios.com
+// https://github.com/nettlep
 //
 // ---------------------------------------------------------------------------------------------------------------------------------
 // Originally created on 12/22/2000 by Paul Nettle
