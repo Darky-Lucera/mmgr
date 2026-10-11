@@ -1,0 +1,23 @@
+name: Web
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    name: Emscripten
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: mymindstorm/setup-emsdk@v14
+
+      # The Emscripten toolchain runs the tests with Node.js
+      - name: Debug and Release
+        run: |
+          for config in Debug Release; do
+            emcmake cmake -S . -B build-$config -DCMAKE_BUILD_TYPE=$config
+            cmake --build build-$config --parallel
+            ctest --test-dir build-$config --output-on-failure
+          done

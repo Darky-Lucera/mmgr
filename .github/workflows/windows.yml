@@ -1,0 +1,33 @@
+name: Windows
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { name: MSVC x64,      os: windows-latest,  platform: x64,   toolset: '' }
+          - { name: MSVC Win32,    os: windows-latest,  platform: Win32, toolset: '' }
+          - { name: clang-cl x64,  os: windows-latest,  platform: x64,   toolset: '-T ClangCL' }
+          - { name: MSVC ARM64,    os: windows-11-arm,  platform: ARM64, toolset: '' }
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure
+        run: cmake -S . -B build -A ${{ matrix.platform }} ${{ matrix.toolset }}
+
+      - name: Debug
+        run: |
+          cmake --build build --config Debug --parallel
+          ctest --test-dir build -C Debug --output-on-failure
+
+      - name: Release
+        run: |
+          cmake --build build --config Release --parallel
+          ctest --test-dir build -C Release --output-on-failure

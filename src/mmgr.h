@@ -52,104 +52,186 @@
 extern "C" {
 #endif
 
-typedef struct tag_au
-{
+typedef struct tag_au {
     size_t          actualSize;
     size_t          reportedSize;
-    void            *actualAddress;
-    void            *reportedAddress;
+    void *          actualAddress;
+    void *          reportedAddress;
     char            sourceFile[40];
     char            sourceFunc[40];
-    unsigned int    sourceLine;
-    unsigned int    allocationType;
+    uint32_t        sourceLine;
+    uint32_t        allocationType;
     bool            breakOnDealloc;
     bool            breakOnRealloc;
-    unsigned int    allocationNumber;
-    struct tag_au   *next;
-    struct tag_au   *prev;
+    uint64_t        allocationNumber;
+    struct tag_au * next;
+    struct tag_au * prev;
 } sAllocUnit;
 
-typedef struct
-{
-    unsigned int    totalReportedMemory;
-    unsigned int    totalActualMemory;
-    unsigned int    peakReportedMemory;
-    unsigned int    peakActualMemory;
-    unsigned int    accumulatedReportedMemory;
-    unsigned int    accumulatedActualMemory;
-    unsigned int    accumulatedAllocUnitCount;
-    unsigned int    totalAllocUnitCount;
-    unsigned int    peakAllocUnitCount;
+typedef struct {
+    uint64_t        totalReportedMemory;
+    uint64_t        totalActualMemory;
+    uint64_t        peakReportedMemory;
+    uint64_t        peakActualMemory;
+    uint64_t        accumulatedReportedMemory;
+    uint64_t        accumulatedActualMemory;
+    uint64_t        accumulatedAllocUnitCount;
+    uint64_t        totalAllocUnitCount;
+    uint64_t        peakAllocUnitCount;
 } sMStats;
 
 // ---------------------------------------------------------------------------------------------------------------------------------
 // External constants
 // ---------------------------------------------------------------------------------------------------------------------------------
 
-extern  const   unsigned int    m_alloc_unknown;
-extern  const   unsigned int    m_alloc_new;
-extern  const   unsigned int    m_alloc_new_array;
-extern  const   unsigned int    m_alloc_malloc;
-extern  const   unsigned int    m_alloc_calloc;
-extern  const   unsigned int    m_alloc_realloc;
-extern  const   unsigned int    m_alloc_delete;
-extern  const   unsigned int    m_alloc_delete_array;
-extern  const   unsigned int    m_alloc_free;
+extern const uint32_t       m_alloc_unknown;
+extern const uint32_t       m_alloc_new;
+extern const uint32_t       m_alloc_new_array;
+extern const uint32_t       m_alloc_malloc;
+extern const uint32_t       m_alloc_calloc;
+extern const uint32_t       m_alloc_realloc;
+extern const uint32_t       m_alloc_delete;
+extern const uint32_t       m_alloc_delete_array;
+extern const uint32_t       m_alloc_free;
+extern const uint32_t       m_alloc_aligned_malloc;
+extern const uint32_t       m_alloc_aligned_realloc;
+extern const uint32_t       m_alloc_aligned_free;
 
 // ---------------------------------------------------------------------------------------------------------------------------------
 // Multi thread support
 // ---------------------------------------------------------------------------------------------------------------------------------
 
-void		EnableMultithreadInMMGR();
+void        m_enableMultithread(void);
 
 // ---------------------------------------------------------------------------------------------------------------------------------
 // Used by the macros
 // ---------------------------------------------------------------------------------------------------------------------------------
 
-void        m_setOwner(const char *file, const unsigned int line, const char *func);
+void        m_setOwner(const char *file, const uint32_t line, const char *func);
 
 // ---------------------------------------------------------------------------------------------------------------------------------
 // Allocation breakpoints
 // ---------------------------------------------------------------------------------------------------------------------------------
 
-void		m_breakOnAllocation(unsigned int count);
-void        m_breakOnRealloc(void *reportedAddress, bool set);
-void        m_breakOnDealloc(void *reportedAddress, bool set);
-
-void        m_alwaysValidateAll(bool set);  // Force a validation of all allocation units each time we enter this software
-void        m_alwaysLogAll(bool set);       // Force a log of every allocation & deallocation into memory.log
-void        m_alwaysWipeAll(bool set);      // Force this software to always wipe memory with a pattern when it is being allocated/deallocated
-void        m_randomeWipe(bool set);        // Force this software to use a random pattern when wiping memory -- good for stress testing
-
-#if defined(__cplusplus)
-}
-
-bool        &m_breakOnRealloc(void *reportedAddress);
-bool        &m_breakOnDealloc(void *reportedAddress);
+void        m_setBreakOnAllocation(uint64_t count);
+uint64_t    m_getBreakOnAllocation(void);
+void        m_setBreakOnRealloc(const void *reportedAddress, bool set);
+bool        m_getBreakOnRealloc(const void *reportedAddress);
+void        m_setBreakOnDealloc(const void *reportedAddress, bool set);
+bool        m_getBreakOnDealloc(const void *reportedAddress);
 
 // ---------------------------------------------------------------------------------------------------------------------------------
 // -DOC- Flags & options -- Call these routines to enable/disable the following options
 // ---------------------------------------------------------------------------------------------------------------------------------
 
-bool        &m_alwaysValidateAll(); // Force a validation of all allocation units each time we enter this software
-bool        &m_alwaysLogAll();      // Force a log of every allocation & deallocation into memory.log
-bool        &m_alwaysWipeAll();     // Force this software to always wipe memory with a pattern when it is being allocated/deallocated
-bool        &m_randomeWipe();       // Force this software to use a random pattern when wiping memory -- good for stress testing
+void        m_setAlwaysValidateAll(bool set);   // Force a validation of all allocation units each time we enter this software
+bool        m_getAlwaysValidateAll(void);
+void        m_setAlwaysLogAll(bool set);        // Force a log of every allocation & deallocation into memory.log
+bool        m_getAlwaysLogAll(void);
+void        m_setAlwaysWipeAll(bool set);       // Force this software to always wipe memory with a pattern when it is being allocated/deallocated
+bool        m_getAlwaysWipeAll(void);
+void        m_setRandomWipe(bool set);          // Force this software to use a random pattern when wiping memory -- good for stress testing
+bool        m_getRandomWipe(void);
+void        m_setStopOnErrors(bool set);        // Stop the program on each error (the default), or only log the error and go on
+bool        m_getStopOnErrors(void);
 
-extern "C" {
+// ---------------------------------------------------------------------------------------------------------------------------------
+// Failure injection
+// ---------------------------------------------------------------------------------------------------------------------------------
 
-#endif
+void        m_setFailOnAllocation(uint64_t count);      // Only the count-th allocation request from now fails (0 turns it off)
+uint64_t    m_getFailOnAllocation(void);
+uint64_t    m_getAllocationRequestCount(void);          // Allocation requests since the last call to m_setFailOnAllocation()
 
 // ---------------------------------------------------------------------------------------------------------------------------------
 // The meat of the memory tracking software
 // ---------------------------------------------------------------------------------------------------------------------------------
 
-void        *m_allocator(const char *sourceFile, const unsigned int sourceLine, const char *sourceFunc, const unsigned int allocationType, const size_t reportedSize);
-void        *m_reallocator(const char *sourceFile, const unsigned int sourceLine, const char *sourceFunc, const unsigned int reallocationType, const size_t reportedSize, void *reportedAddress);
-void        m_deallocator(const char *sourceFile, const unsigned int sourceLine, const char *sourceFunc, const unsigned int deallocationType, const void *reportedAddress);
+void *      m_allocator(
+    const char *   sourceFile,
+    const uint32_t sourceLine,
+    const char *   sourceFunc,
+    const uint32_t allocationType,
+    const size_t   reportedSize
+);
+void *      m_reallocator(
+    const char *   sourceFile,
+    const uint32_t sourceLine,
+    const char *   sourceFunc,
+    const uint32_t reallocationType,
+    const size_t   reportedSize,
+    void *         reportedAddress
+);
+void        m_deallocator(
+    const char *   sourceFile,
+    const uint32_t sourceLine,
+    const char *   sourceFunc,
+    const uint32_t deallocationType,
+    const void *   reportedAddress
+);
 
 // strdup
-char        *m_allocatorCpy(const char *sourceFile, const unsigned int sourceLine, const char *sourceFunc, const unsigned int allocationType, const char *_str);
+char *      m_allocatorCpy(
+    const char *   sourceFile,
+    const uint32_t sourceLine,
+    const char *   sourceFunc,
+    const uint32_t allocationType,
+    const char *   _str
+);
+
+// calloc
+void *      m_callocator(
+    const char *   sourceFile,
+    const uint32_t sourceLine,
+    const char *   sourceFunc,
+    const size_t   count,
+    const size_t   size
+);
+
+// aligned_alloc, memalign, posix_memalign
+void *      m_alignedAllocator(
+    const char *   sourceFile,
+    const uint32_t sourceLine,
+    const char *   sourceFunc,
+    const uint32_t allocationType,
+    const size_t   size,
+    const size_t   alignment
+);
+int         m_posixMemalign(
+    const char *   sourceFile,
+    const uint32_t sourceLine,
+    const char *   sourceFunc,
+    void **        result,
+    const size_t   alignment,
+    const size_t   size
+);
+
+// _aligned_malloc (with m_alignedAllocator), _aligned_realloc, _aligned_recalloc, _aligned_msize
+void *      m_alignedReallocator(
+    const char *   sourceFile,
+    const uint32_t sourceLine,
+    const char *   sourceFunc,
+    void *         reportedAddress,
+    const size_t   size,
+    const size_t   alignment
+);
+void *      m_alignedRecallocator(
+    const char *   sourceFile,
+    const uint32_t sourceLine,
+    const char *   sourceFunc,
+    void *         reportedAddress,
+    const size_t   count,
+    const size_t   size,
+    const size_t   alignment
+);
+size_t      m_alignedSize(
+    const char *   sourceFile,
+    const uint32_t sourceLine,
+    const char *   sourceFunc,
+    const void *   reportedAddress,
+    const size_t   alignment,
+    const size_t   offset
+);
 
 // ---------------------------------------------------------------------------------------------------------------------------------
 // Utilitarian functions
@@ -157,18 +239,32 @@ char        *m_allocatorCpy(const char *sourceFile, const unsigned int sourceLin
 
 bool        m_validateAddress(const void *reportedAddress);
 bool        m_validateAllocUnit(const sAllocUnit *allocUnit);
-bool        m_validateAllAllocUnits();
+bool        m_validateAllAllocUnits(void);
 
 // ---------------------------------------------------------------------------------------------------------------------------------
 // Unused RAM calculations
 // ---------------------------------------------------------------------------------------------------------------------------------
 
-unsigned int    m_calcUnused(const sAllocUnit *allocUnit);
-unsigned int    m_calcAllUnused();
+size_t      m_calcUnused(const sAllocUnit *allocUnit);
+uint64_t    m_calcAllUnused(void);
 
 // ---------------------------------------------------------------------------------------------------------------------------------
 // Logging and reporting
 // ---------------------------------------------------------------------------------------------------------------------------------
+
+// Each line of the logs goes to its file and to the log function
+typedef enum {
+    m_log_memory,   // memory.log: the errors, and every operation with m_setAlwaysLogAll()
+    m_log_leaks,    // memleaks.log: the leak report, written when the program ends
+    m_log_report    // m_dumpMemoryReport()
+} m_logKind;
+
+typedef void (*m_logFunction)(m_logKind kind, const char *line);
+
+void        m_setLogFunction(m_logFunction function);                       // m_logToStdout by default, NULL for none
+void        m_logToStdout(m_logKind kind, const char *line);                // Prints the line with printf
+void        m_setLogFiles(const char *memoryLog, const char *leakReport);   // memory.log and memleaks.log by default, NULL for no file
+void        m_dumpLeakReport(void);                                         // Writes the leak report now, as at the end of the program
 
 #if !defined(__cplusplus)
 void        m_dumpAllocUnit(const sAllocUnit *allocUnit, const char *prefix);
@@ -177,7 +273,8 @@ void        m_dumpMemoryReport(const char *filename, const bool overwrite);
 void        m_dumpAllocUnit(const sAllocUnit *allocUnit, const char *prefix = "");
 void        m_dumpMemoryReport(const char *filename = "memreport.log", const bool overwrite = true);
 #endif
-sMStats     m_getMemoryStatistics();
+
+sMStats     m_getMemoryStatistics(void);
 
 #if defined(__cplusplus)
 } // end extern "C"
@@ -188,12 +285,23 @@ sMStats     m_getMemoryStatistics();
 // ---------------------------------------------------------------------------------------------------------------------------------
 
 #if defined(__cplusplus)
-void    *operator new(size_t reportedSize);
-void    *operator new[](size_t reportedSize);
-void    *operator new(size_t reportedSize, const char *sourceFile, int sourceLine);
-void    *operator new[](size_t reportedSize, const char *sourceFile, int sourceLine);
-void    operator delete(void *reportedAddress);
-void    operator delete[](void *reportedAddress);
+
+void *  operator new(size_t reportedSize);
+void *  operator new[](size_t reportedSize);
+void *  operator new(size_t reportedSize, const char *sourceFile, uint32_t sourceLine);
+void *  operator new[](size_t reportedSize, const char *sourceFile, uint32_t sourceLine);
+void    operator delete(void *reportedAddress) noexcept;
+void    operator delete[](void *reportedAddress) noexcept;
+
+// The macros turn std::malloc(size) into std::m_allocator(...), so the functions that they call must also be in std.
+namespace std {
+    using ::m_allocator;
+    using ::m_callocator;
+    using ::m_reallocator;
+    using ::m_deallocator;
+    using ::m_alignedAllocator;
+}
+
 #endif
 
 #endif // _H_MMGR
@@ -204,14 +312,42 @@ void    operator delete[](void *reportedAddress);
 
 #include "nommgr.h"
 
+// In C, new and delete are ordinary identifiers that programs may use
+#if defined(__cplusplus)
+
 #define new             (m_setOwner   (__FILE__, __LINE__, __FUNCTION__), false) ? nullptr : new
-#define delete          (m_setOwner   (__FILE__, __LINE__, __FUNCTION__), false) ? m_setOwner("", 0, "") : delete
+
+// The delete macro breaks "= delete" (C++11 deleted functions) in any code compiled after this header.
+#if !defined(MMGR_NO_DELETE_MACRO)
+    #define delete      (m_setOwner   (__FILE__, __LINE__, __FUNCTION__), false) ? m_setOwner("", 0, "") : delete
+#endif
+
+#endif
+
 #define malloc(sz)      m_allocator   (__FILE__, __LINE__, __FUNCTION__, m_alloc_malloc, sz)
-#define calloc(sz)      m_allocator   (__FILE__, __LINE__, __FUNCTION__, m_alloc_calloc, sz)
+#define calloc(num,sz)  m_callocator  (__FILE__, __LINE__, __FUNCTION__, num, sz)
 #define realloc(ptr,sz) m_reallocator (__FILE__, __LINE__, __FUNCTION__, m_alloc_realloc, sz, ptr)
 #define free(ptr)       m_deallocator (__FILE__, __LINE__, __FUNCTION__, m_alloc_free, ptr)
-#define strdup(str)		m_allocatorCpy(__FILE__, __LINE__, __FUNCTION__, m_alloc_malloc, str)
-#define _strdup(str)	m_allocatorCpy(__FILE__, __LINE__, __FUNCTION__, m_alloc_malloc, str)
+#define strdup(str)     m_allocatorCpy(__FILE__, __LINE__, __FUNCTION__, m_alloc_malloc, str)
+#define _strdup(str)    m_allocatorCpy(__FILE__, __LINE__, __FUNCTION__, m_alloc_malloc, str)
+
+// Only the aligned allocation functions that the platform has, so that code which calls a missing one does not start
+// to compile because of mmgr.
+#if defined(_WIN32)
+
+#define _aligned_malloc(sz,al)          m_alignedAllocator   (__FILE__, __LINE__, __FUNCTION__, m_alloc_aligned_malloc, sz, al)
+#define _aligned_realloc(ptr,sz,al)     m_alignedReallocator (__FILE__, __LINE__, __FUNCTION__, ptr, sz, al)
+#define _aligned_recalloc(ptr,n,sz,al)  m_alignedRecallocator(__FILE__, __LINE__, __FUNCTION__, ptr, n, sz, al)
+#define _aligned_msize(ptr,al,off)      m_alignedSize        (__FILE__, __LINE__, __FUNCTION__, ptr, al, off)
+#define _aligned_free(ptr)              m_deallocator        (__FILE__, __LINE__, __FUNCTION__, m_alloc_aligned_free, ptr)
+
+#else
+
+#define aligned_alloc(al,sz)            m_alignedAllocator   (__FILE__, __LINE__, __FUNCTION__, m_alloc_malloc, sz, al)
+#define memalign(al,sz)                 m_alignedAllocator   (__FILE__, __LINE__, __FUNCTION__, m_alloc_malloc, sz, al)
+#define posix_memalign(ptr,al,sz)       m_posixMemalign      (__FILE__, __LINE__, __FUNCTION__, ptr, al, sz)
+
+#endif
 
 // ---------------------------------------------------------------------------------------------------------------------------------
 // mmgr.h - End of file

@@ -1,9 +1,9 @@
 #pragma once
 
-#ifdef  new
-    #undef  new
+#ifdef new
+    #undef new
 #endif
 
-#ifdef  delete
-    #undef  delete
+#ifdef delete
+    #undef delete
 #endif
