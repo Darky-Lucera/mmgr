@@ -58,6 +58,8 @@ CMake options:
 
 With CMake, `mmgr.cpp` is always compiled as C++17, and the code that links mmgr can use any standard. A C project must also enable C++, for example with `project(my_project C CXX)`.
 
+With MinGW, the program must link libstdc++ statically. `libstdc++-6.dll` has its own `operator new` and `operator delete`, which mmgr cannot replace, so the STL code inside it allocates blocks that mmgr does not know, and releasing them is reported as an error. The CMake target adds `-static-libstdc++` by itself; without CMake, add it to the link options.
+
 ### C++ exceptions
 
 mmgr does not use C++ exceptions, so it also compiles with `-fno-exceptions`, and Emscripten needs no extra options.

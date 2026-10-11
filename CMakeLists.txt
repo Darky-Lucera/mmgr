@@ -90,6 +90,15 @@ PUBLIC
     src
 )
 
+# libstdc++-6.dll keeps its own operator new and delete, which mmgr cannot replace, so the STL code inside it would
+# allocate blocks that mmgr does not know. Linked statically, every new and delete of the program goes through mmgr.
+if (MINGW)
+    target_link_options(mmgr
+    INTERFACE
+        -static-libstdc++
+    )
+endif()
+
 if (MMGR_NO_DELETE_MACRO)
     target_compile_definitions(mmgr
     PUBLIC

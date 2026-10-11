@@ -42,7 +42,7 @@ This version updates mmgr for C++11 to C++23. It tracks the aligned allocation f
 - `nommgr.h` and `nomalloc.h` also undefine `strdup`, `_strdup` and the aligned functions.
 - `operator delete` is `noexcept`, as the standard declares it.
 - **C++ standard**: `mmgr.cpp` needs C++11 or later. CMake builds it as C++17 (it used C++14), so that it also replaces the sized and aligned operators. The code that links mmgr can use any standard.
-- **CMake**: it needs CMake 3.16 (it needed 3.10). The warning options, and the MSVC options `/permissive-`, `/utf-8`, `/sdl` and `/Zc:__cplusplus`, only apply to mmgr and its tests. mmgr links the system thread library (`Threads::Threads`), except on DJGPP and Emscripten. The tests use `include(CTest)`, so `ctest -T test`, which IDEs such as VS Code run, no longer warns about a missing `DartConfiguration.tcl`.
+- **CMake**: it needs CMake 3.16 (it needed 3.10). The warning options, and the MSVC options `/permissive-`, `/utf-8`, `/sdl` and `/Zc:__cplusplus`, only apply to mmgr and its tests. mmgr links the system thread library (`Threads::Threads`), except on DJGPP and Emscripten. The tests use `include(CTest)`, so `ctest -T test`, which IDEs such as VS Code run, no longer warns about a missing `DartConfiguration.tcl`. With MinGW, the target links libstdc++ statically, because the operator new and delete inside libstdc++-6.dll cannot be replaced.
 - mmgr builds without warnings with `/W4` on MSVC and `-Wall -Wextra` on GCC and Clang.
 - The tests in `tests/` replace the programs `test/test.cpp` and `test/testC.c`.
 - All files use LF line endings.
