@@ -1103,6 +1103,15 @@ throwBadAlloc() {
 #endif
 }
 
+// A C program never calls these operators, so -dead_strip (on by default in Xcode) can remove some of them and keep
+// others. A system library could then allocate a block with its own new and release it with this delete, which does
+// not know the block. On Mach-O, "used" also marks them as no_dead_strip.
+#if defined(__GNUC__) || defined(__clang__)
+    #define MMGR_KEEP __attribute__((used))
+#else
+    #define MMGR_KEEP
+#endif
+
 // ---------------------------------------------------------------------------------------------------------------------------------
 // Global new/new[]
 //
@@ -1110,7 +1119,7 @@ throwBadAlloc() {
 // memory tracking routines.
 // ---------------------------------------------------------------------------------------------------------------------------------
 
-void *
+MMGR_KEEP void *
 operator new(size_t reportedSize) {
     LockGuard lock;
 
@@ -1168,7 +1177,7 @@ operator new(size_t reportedSize) {
 
 // ---------------------------------------------------------------------------------------------------------------------------------
 
-void *
+MMGR_KEEP void *
 operator new[](size_t reportedSize) {
     LockGuard lock;
 
@@ -1232,7 +1241,7 @@ operator new[](size_t reportedSize) {
 // our memory tracking routines.
 // ---------------------------------------------------------------------------------------------------------------------------------
 
-void *
+MMGR_KEEP void *
 operator new(size_t reportedSize, const char *sourceFile, uint32_t sourceLine) {
     LockGuard lock;
 
@@ -1284,7 +1293,7 @@ operator new(size_t reportedSize, const char *sourceFile, uint32_t sourceLine) {
 
 // ---------------------------------------------------------------------------------------------------------------------------------
 
-void *
+MMGR_KEEP void *
 operator new[](size_t reportedSize, const char *sourceFile, uint32_t sourceLine) {
     LockGuard lock;
 
@@ -1341,7 +1350,7 @@ operator new[](size_t reportedSize, const char *sourceFile, uint32_t sourceLine)
 // but use our memory tracking routines.
 // ---------------------------------------------------------------------------------------------------------------------------------
 
-void
+MMGR_KEEP void
 operator delete(void *reportedAddress) noexcept {
     LockGuard lock;
 
@@ -1373,7 +1382,7 @@ operator delete(void *reportedAddress) noexcept {
 
 // ---------------------------------------------------------------------------------------------------------------------------------
 
-void
+MMGR_KEEP void
 operator delete[](void *reportedAddress) noexcept {
     LockGuard lock;
 
@@ -1449,28 +1458,28 @@ newWithHandler(size_t reportedSize, const size_t alignment, const uint32_t alloc
 
 // ---------------------------------------------------------------------------------------------------------------------------------
 
-void *
+MMGR_KEEP void *
 operator new(size_t reportedSize, const std::nothrow_t &) noexcept {
     return newWithHandler(reportedSize, 0, m_alloc_new);
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------
 
-void *
+MMGR_KEEP void *
 operator new[](size_t reportedSize, const std::nothrow_t &) noexcept {
     return newWithHandler(reportedSize, 0, m_alloc_new_array);
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------
 
-void
+MMGR_KEEP void
 operator delete(void *reportedAddress, const std::nothrow_t &) noexcept {
     operator delete(reportedAddress);
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------
 
-void
+MMGR_KEEP void
 operator delete[](void *reportedAddress, const std::nothrow_t &) noexcept {
     operator delete[](reportedAddress);
 }
@@ -1513,7 +1522,7 @@ checkDeallocationSize(const void *reportedAddress, size_t reportedSize) {
 
 // ---------------------------------------------------------------------------------------------------------------------------------
 
-void
+MMGR_KEEP void
 operator delete(void *reportedAddress, size_t reportedSize) noexcept {
     checkDeallocationSize(reportedAddress, reportedSize);
     operator delete(reportedAddress);
@@ -1521,7 +1530,7 @@ operator delete(void *reportedAddress, size_t reportedSize) noexcept {
 
 // ---------------------------------------------------------------------------------------------------------------------------------
 
-void
+MMGR_KEEP void
 operator delete[](void *reportedAddress, size_t reportedSize) noexcept {
     checkDeallocationSize(reportedAddress, reportedSize);
     operator delete[](reportedAddress);
@@ -1535,7 +1544,7 @@ operator delete[](void *reportedAddress, size_t reportedSize) noexcept {
 // ---------------------------------------------------------------------------------------------------------------------------------
 
 #if __cplusplus >= 201703L || (defined(_MSVC_LANG) && _MSVC_LANG >= 201703L)
-void *
+MMGR_KEEP void *
 operator new(size_t reportedSize, std::align_val_t alignment) {
     void * ptr = newWithHandler(reportedSize, static_cast<size_t>(alignment), m_alloc_new);
     if (!ptr) {
@@ -1547,7 +1556,7 @@ operator new(size_t reportedSize, std::align_val_t alignment) {
 
 // ---------------------------------------------------------------------------------------------------------------------------------
 
-void *
+MMGR_KEEP void *
 operator new[](size_t reportedSize, std::align_val_t alignment) {
     void * ptr = newWithHandler(reportedSize, static_cast<size_t>(alignment), m_alloc_new_array);
     if (!ptr) {
@@ -1559,21 +1568,21 @@ operator new[](size_t reportedSize, std::align_val_t alignment) {
 
 // ---------------------------------------------------------------------------------------------------------------------------------
 
-void
+MMGR_KEEP void
 operator delete(void *reportedAddress, std::align_val_t) noexcept {
     operator delete(reportedAddress);
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------
 
-void
+MMGR_KEEP void
 operator delete[](void *reportedAddress, std::align_val_t) noexcept {
     operator delete[](reportedAddress);
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------
 
-void
+MMGR_KEEP void
 operator delete(void *reportedAddress, size_t reportedSize, std::align_val_t) noexcept {
     checkDeallocationSize(reportedAddress, reportedSize);
     operator delete(reportedAddress);
@@ -1581,7 +1590,7 @@ operator delete(void *reportedAddress, size_t reportedSize, std::align_val_t) no
 
 // ---------------------------------------------------------------------------------------------------------------------------------
 
-void
+MMGR_KEEP void
 operator delete[](void *reportedAddress, size_t reportedSize, std::align_val_t) noexcept {
     checkDeallocationSize(reportedAddress, reportedSize);
     operator delete[](reportedAddress);
@@ -1589,28 +1598,28 @@ operator delete[](void *reportedAddress, size_t reportedSize, std::align_val_t) 
 
 // ---------------------------------------------------------------------------------------------------------------------------------
 
-void *
+MMGR_KEEP void *
 operator new(size_t reportedSize, std::align_val_t alignment, const std::nothrow_t &) noexcept {
     return newWithHandler(reportedSize, static_cast<size_t>(alignment), m_alloc_new);
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------
 
-void *
+MMGR_KEEP void *
 operator new[](size_t reportedSize, std::align_val_t alignment, const std::nothrow_t &) noexcept {
     return newWithHandler(reportedSize, static_cast<size_t>(alignment), m_alloc_new_array);
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------
 
-void
+MMGR_KEEP void
 operator delete(void *reportedAddress, std::align_val_t, const std::nothrow_t &) noexcept {
     operator delete(reportedAddress);
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------
 
-void
+MMGR_KEEP void
 operator delete[](void *reportedAddress, std::align_val_t, const std::nothrow_t &) noexcept {
     operator delete[](reportedAddress);
 }

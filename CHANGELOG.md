@@ -4,6 +4,14 @@ All notable changes to this project are documented in this file. The versions be
 
 ## [Unreleased]
 
+## [1.0.1]
+
+This version fixes mmgr on macOS and iOS when the program is linked with `-dead_strip`, which Xcode uses by default for iOS.
+
+### Fixed
+
+- **macOS and iOS with `-dead_strip`**: this linker option removes the code that nothing in the program uses. Xcode uses it by default for iOS, and a macOS project can turn it on. A program written in C never calls `operator new` or `operator delete`, so ld64 removed every `operator new` of mmgr but kept `operator delete(void *)`. The system libraries then allocated blocks with their own `new` and released them with the `delete` of mmgr. mmgr did not know those blocks, so it stopped the program with "Request to deallocate RAM that was never allocated". On the iOS Simulator, this happened before `main`, in a static initializer of `libLLVMContainer.dylib`, which UIKit loads. On macOS, it happened in SkyLight, when the program connected to the window server. The replacement operators now have `__attribute__((used))`, which on Mach-O also stops `-dead_strip` from removing them. The tests now also pass on the iOS Simulator, and on macOS when they are linked with `-dead_strip`.
+
 ## [1.0.0]
 
 This version updates mmgr for C++11 to C++23. It tracks the aligned allocation functions and every form of `operator new` and `operator delete`, and adds failure injection, a log function, configurable log files and an option to log errors without stopping the program. It works correctly with several threads, needs no C++ exceptions, and runs on DOS (DJGPP) and the Web (Emscripten). Self-checking tests now run with CTest. It also fixes a buffer overrun on platforms where `long` is 8 bytes, and the `calloc` macro, which took one argument.

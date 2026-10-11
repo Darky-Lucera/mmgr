@@ -35,7 +35,7 @@ With CMake, link the static library target `mmgr::mmgr`. It also adds `src` to t
 include(FetchContent)
 FetchContent_Declare(mmgr
     GIT_REPOSITORY https://github.com/Darky-Lucera/mmgr.git
-    GIT_TAG        v1.0.0
+    GIT_TAG        v1.0.1
 )
 FetchContent_MakeAvailable(mmgr)
 
@@ -194,6 +194,7 @@ There is one case that the standard requires: when `new` cannot allocate memory 
 | --- | --- |
 | Web (Emscripten), Android, iOS | The program may never end normally, so the leak report at the end may never be written. Call `m_dumpLeakReport()` when the program closes. |
 | Android, iOS | The current folder is read-only. Call `m_setLogFiles()` with a folder that the program can write to, or send the logs to a log function (see the example below). |
+| macOS, iOS, Linux | mmgr replaces the global `operator new` of the whole process, so it also tracks the C++ code of the system libraries (AppKit, UIKit and Metal on macOS and iOS, Mesa on Linux). When those blocks are still in use at the end, the leak report lists them as `??(0)::??`. They are not leaks of your program. Some of those libraries allocate from their own threads, so call `m_enableMultithread()` at the start of `main`, even if the program itself has only one thread. |
 | MinGW | Link libstdc++ statically. `libstdc++-6.dll` has its own `operator new` and `operator delete`, which mmgr cannot replace, so mmgr does not know the blocks that the STL code inside the DLL allocates, and releasing them is reported as an error. The CMake target adds `-static-libstdc++` for you; without CMake, add it to the link options. |
 | DOS (DJGPP) | There are no threads, so `m_enableMultithread()` does nothing. |
 
@@ -336,6 +337,7 @@ Also tested by hand, without warnings:
 | Linux (Ubuntu 26.04 on WSL2) | x64 | GCC 15.2, Clang 21.1, with AddressSanitizer and ThreadSanitizer | ✅ Debug and Release |
 | macOS 12.7 (Monterey) | x64 | Apple Clang 14.0 | ✅ Debug and Release |
 | macOS 14.8 (Sonoma), Apple M1 Pro | ARM64 | Apple Clang 14.0, 15.0, 16.0 | ✅ Debug and Release |
+| iOS 16.2 (Simulator, Xcode 14.2) | x86_64 | Apple Clang 14.0, linked with `-dead_strip` | ✅ Debug and Release |
 | Web (Node.js 22) | wasm32 | Emscripten 6.0.9 | ✅ Debug and Release |
 | DOS (DOSBox-X) | x86 | DJGPP GCC 12.2 | ✅ Debug and Release |
 | Android 17 (emulator) | x86_64 | NDK 27 | ✅ Debug and Release |

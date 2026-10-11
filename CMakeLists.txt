@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(mmgr VERSION 1.0.0 LANGUAGES C CXX)
+project(mmgr VERSION 1.0.1 LANGUAGES C CXX)
 
 # Options
 #--------------------------------------
