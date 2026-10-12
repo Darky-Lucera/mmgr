@@ -219,6 +219,8 @@ Everything is declared in `mmgr.h`, and every function can be called from C and 
 
 **(changed)** All the functions of mmgr take the mutex, so they can be called while other threads allocate. The only result that is approximate then is the count of unused memory of `m_calcAllUnused()` and `m_dumpMemoryReport()`, because it reads the contents of every block while other threads may be writing to them.
 
+When the program ends, mmgr writes the leak report again after each release, but only in the thread that runs the static destructors. The process does not wait for its other threads, so a thread that wrote the report could be stopped halfway through it. As a result, a block that another thread releases at the very end can still appear in the report.
+
 ### Options
 
 **(changed)** Each option has an `m_set*` function and an `m_get*` function that returns the current value. The original only had C++ functions that returned a `bool &`.
@@ -335,9 +337,10 @@ Also tested by hand, without warnings:
 | Windows 11 | x64 | MSVC 19.44 (Visual Studio 2022), MinGW-w64 GCC 15.2 | ✅ Debug and Release |
 | Windows 11 | x86 (Win32) | MSVC 19.44, clang-cl 19.1 | ✅ Debug and Release |
 | Linux (Ubuntu 26.04 on WSL2) | x64 | GCC 15.2, Clang 21.1, with AddressSanitizer and ThreadSanitizer | ✅ Debug and Release |
-| macOS 12.7 (Monterey) | x64 | Apple Clang 14.0 | ✅ Debug and Release |
-| macOS 14.8 (Sonoma), Apple M1 Pro | ARM64 | Apple Clang 14.0, 15.0, 16.0 | ✅ Debug and Release |
-| iOS 16.2 (Simulator, Xcode 14.2) | x86_64 | Apple Clang 14.0, linked with `-dead_strip` | ✅ Debug and Release |
+| macOS 12.7 (Monterey) | x64 | Apple Clang 14.0, with and without `-dead_strip` | ✅ Debug and Release |
+| macOS 14.8 (Sonoma), Apple M1 Pro | ARM64 | Apple Clang 14.0, 15.0, 16.0, Clang 22.1, 23.1 (Homebrew), with and without `-dead_strip` | ✅ Debug and Release |
+| iOS 16.2 (Simulator, Xcode 14.2) | x86_64 | Apple Clang 14.0, with and without `-dead_strip` | ✅ Debug and Release |
+| iOS 16.4, 17.2, 18.3 (Simulator, Xcode 14.3.1, 15.2, 16.2) | ARM64 | Apple Clang 14.0, 15.0, 16.0, with and without `-dead_strip` | ✅ Debug and Release |
 | Web (Node.js 22) | wasm32 | Emscripten 6.0.9 | ✅ Debug and Release |
 | DOS (DOSBox-X) | x86 | DJGPP GCC 12.2 | ✅ Debug and Release |
 | Android 17 (emulator) | x86_64 | NDK 27 | ✅ Debug and Release |

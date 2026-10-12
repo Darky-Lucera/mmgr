@@ -180,6 +180,27 @@ if (MMGR_BUILD_TESTS)
         add_test(NAME mmgr_${name} COMMAND mmgr_${name} WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/tests/${name})
     endforeach()
 
+    # exitthreads.cpp checks the leak report written at exit while other threads release blocks. The report only exists
+    # once the program has ended, so a first run writes it and a second one reads it.
+    if (NOT DJGPP AND NOT EMSCRIPTEN)
+        mmgr_add_test_program(exitthreads exitthreads.cpp)
+
+        foreach (step run check)
+            add_test(NAME mmgr_exitthreads_${step} COMMAND mmgr_exitthreads ${step}
+                     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/tests/exitthreads)
+        endforeach()
+
+        set_tests_properties(mmgr_exitthreads_run
+        PROPERTIES
+            FIXTURES_SETUP exitthreads
+        )
+
+        set_tests_properties(mmgr_exitthreads_check
+        PROPERTIES
+            FIXTURES_REQUIRED exitthreads
+        )
+    endif()
+
     # stops.c checks that mmgr stops the program, so each run must fail. The asserts are empty in release builds, so
     # these runs only exist for debug builds.
     mmgr_add_test_program(stops stops.c)

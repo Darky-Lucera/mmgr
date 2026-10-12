@@ -354,6 +354,11 @@ static MMGR_THREAD_LOCAL const char *   ownerFile = "??";
 static MMGR_THREAD_LOCAL const char *   ownerFunc = "??";
 static MMGR_THREAD_LOCAL uint32_t       ownerLine = 0;
 
+// True only in the thread that runs the static destructors, the only one that rewrites the leak report at exit. The
+// process can end while other threads still run, so a thread that rewrote it could be stopped halfway and leave it
+// cut or empty.
+static MMGR_THREAD_LOCAL bool           exitThread = false;
+
 static void doCleanupLogOnFirstRun();
 
 // ---------------------------------------------------------------------------------------------------------------------------------
@@ -792,8 +797,11 @@ public:
         remove(memoryLogFile);
     }
 
+    // Other threads can still release blocks now, so the report is written under the lock
     ~MemStaticTimeTracker() {
+        LockGuard lock;
         staticDeinitTime = true;
+        exitThread       = true;
         dumpLeakReport();
     }
 };
@@ -1103,9 +1111,9 @@ throwBadAlloc() {
 #endif
 }
 
-// A C program never calls these operators, so -dead_strip (on by default in Xcode) can remove some of them and keep
-// others. A system library could then allocate a block with its own new and release it with this delete, which does
-// not know the block. On Mach-O, "used" also marks them as no_dead_strip.
+// A C program never calls these operators, so -dead_strip (on by default for iOS in Xcode) can remove some of them
+// and keep others. A system library could then allocate a block with its own new and release it with this delete,
+// which does not know the block. On Mach-O, "used" also marks them as no_dead_strip.
 #if defined(__GNUC__) || defined(__clang__)
     #define MMGR_KEEP __attribute__((used))
 #else
@@ -2432,7 +2440,7 @@ m_deallocator(
 
         // If we're in the midst of static deinitialization time, track any pending memory leaks
 
-        if (staticDeinitTime) {
+        if (staticDeinitTime && exitThread) {
             dumpLeakReport();
         }
     }

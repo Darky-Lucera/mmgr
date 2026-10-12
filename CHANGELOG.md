@@ -6,11 +6,12 @@ All notable changes to this project are documented in this file. The versions be
 
 ## [1.0.1]
 
-This version fixes mmgr on macOS and iOS when the program is linked with `-dead_strip`, which Xcode uses by default for iOS.
+This version fixes mmgr on macOS and iOS when the program is linked with `-dead_strip`, which Xcode uses by default for iOS. It also fixes the leak report written at exit, which came out mixed, cut or empty when other threads still released blocks.
 
 ### Fixed
 
 - **macOS and iOS with `-dead_strip`**: this linker option removes the code that nothing in the program uses. Xcode uses it by default for iOS, and a macOS project can turn it on. A program written in C never calls `operator new` or `operator delete`, so ld64 removed every `operator new` of mmgr but kept `operator delete(void *)`. The system libraries then allocated blocks with their own `new` and released them with the `delete` of mmgr. mmgr did not know those blocks, so it stopped the program with "Request to deallocate RAM that was never allocated". On the iOS Simulator, this happened before `main`, in a static initializer of `libLLVMContainer.dylib`, which UIKit loads. On macOS, it happened in SkyLight, when the program connected to the window server. The replacement operators now have `__attribute__((used))`, which on Mach-O also stops `-dead_strip` from removing them. The tests now also pass on the iOS Simulator, and on macOS when they are linked with `-dead_strip`.
+- **Leak report at exit with several threads**: after the static destructor of mmgr writes the leak report, every release writes it again, so that a block released by a later static destructor no longer appears in it. Other threads did the same: on macOS, AppKit and Metal keep releasing blocks from libdispatch threads while the program ends. The static destructor did not take the mutex, so its report and the report of another thread were written to the same file at the same time and came out mixed. Also, the process ends without waiting for its threads, so a thread could be stopped halfway through the report and leave it cut or empty. In a program that uses MiniFB on macOS, about half of the reports were broken. Now the static destructor takes the mutex, and only the thread that runs the static destructors writes the report again. Releases in other threads still update the statistics. The new test `tests/exitthreads.cpp` ends while four threads release blocks, and then checks the report.
 
 ## [1.0.0]
 
